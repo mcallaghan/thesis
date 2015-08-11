@@ -2,14 +2,14 @@
 title: "Thesis Outline"
 author: "Max Callaghan"
 date: "August 7, 2015"
-output: html_document
+output: pdf_document
 ---
 
 #Outline
 The general purpose of the paper is to use census data and energy consumption data to analyse household emissions. The data present multiple avenues of exploration for gaining more accurate insights into the drivers of household emissions and so for better formulation of policy interventions.
 
 ## 1. 3-Dimensional Fixed Effects Model
-Household data is available at a high level of geographical granularity, and, since the release of Census data from 2011, in two timesteps (2001 and 2011).
+Household data is available at a high level of geographical granularity, and, since the release of Census data from 2011, in two timesteps (2001 and 2011). The paper will aim to produce a 3 way fixed effects model, to look at drivers of changes in emissions in geographical areas over time. 
 
 ## 2. Fixed Effect Tree Regression Model
 Building on the tree regression model in "A Spatial Typology of Human Settlements and their CO2 Emissions in England", the project will use the two points in time - 2001 and 2011 - to develop a fixed effect tree regression model which should shed light on how emissions drivers like income and population density affect changes in emissions differently in different area typologies.
@@ -23,7 +23,7 @@ A more detailed profile of emissions may be gathered from smart meter data.
 # Variables and Indicators
 ## Income
 Data are available at ward level for Model-Based Income estimates. 
-```{r}
+```{r message=FALSE}
 
 library(tidyr)
 library(dplyr)
@@ -40,7 +40,7 @@ We can convert these to MSOA level using this  [online tool](http://geoconvert.m
 Data from 2011 was expected in the second quarter of 2015. [Link](http://www.ons.gov.uk/ons/rel/ness/small-area-model-based-income-estimates/index.html)
 
 ## Heating Degree Days
-Heating degree days are only available up to 2006, at [UKCIP](http://www.metoffice.gov.uk/climatechange/science/monitoring/ukcip2009.html) but can be calculated from UKCP09 monthly data using the formula [here](http://www.metoffice.gov.uk/climatechange/science/monitoring/ukcp09/faq.html#faq1.8). Data will be available one registration has been approved.
+Heating degree days are only available up to 2006, at [UKCIP](http://www.metoffice.gov.uk/climatechange/science/monitoring/ukcip2009.html) but can be calculated from UKCP09 monthly data using the formula [here](http://www.metoffice.gov.uk/climatechange/science/monitoring/ukcp09/faq.html#faq1.8). Data will be available once registration has been approved.
 
 ## Central heating and housing in poor condition
 These sub-indicators of the indoors sub-domain of the living environment domain of the index of multiple deprivation are not available at a disaggregated level. They could be recreated from their sources in housing surveys.
@@ -57,6 +57,7 @@ housing_2011 <- read.csv("living environment/living_environment.csv", header=TRU
 hist(housing_2011$Indoors.Sub.domain.Score)
 
 ```
+
 Need to find out what's going on here - will need recoding somehow.
 
 
