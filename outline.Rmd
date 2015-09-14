@@ -21,6 +21,23 @@ A more detailed profile of emissions may be gathered from smart meter data.
 
 
 # Variables and Indicators
+This paper will investigate drivers of emissions in the 3 areas of lifestyle, infrastructure/environment, and policy
+
+# Lifestyle
+- Income
+- Age
+- Household Size
+- % Adults working
+- Single
+- Children
+- Rented/Owned
+# Infrastructure
+- Population Density
+- 
+# Policy
+- local govt spending
+- council tax
+
 ## Income
 Data are available at ward level for Model-Based Income estimates. 
 ```{r message=FALSE}

@@ -1,0 +1,24 @@
+---
+title: "Assignment 1"
+author: "Max Callaghan"
+date: "September 11, 2015"
+output: word_document
+nocite: |
+  @Maraseni @Hojjati2012304
+bibliography: bibliography.bib
+---
+# Outline
+The United Kingdom housing energy fact file, produced for the Department for Energy and Climate Change, shows energy used by households to be the single largest source of energy use in the UK [@ukheff,5]. Household energy usage accounts for 29% of energy use and CO~2~ emissions in the UK, and as such represents a major source of potential reductions in
+greenhouse gas emissions [@ukheff,5]. Moreover, household emissions have been identified as "low hanging fruit" due to the "potential to achieve large reductions" through actions that "require limited up-front government expenditures, generate net savings for the individual, and do not confront other barriers." [@vandenbergh2008].
+
+This paper seeks to analyse neighbourhood household emissions data in England and Wales across time and geography in order to identify drivers of emissions and emissions trends. Differences in local environmental regulation and regulatory powers will be operationalised to analyse their effect on emissions. In addition, the effect of socioeconomic and environmental attributes of neighbourhoods will be measured. The paper will build on research which has developed a "nested typology of human settlements" to understand the "interdependence between attributes [and] their place specific contexts" [@typology].
+
+Based on recently available data from the last census (2011), the paper will extend Baiocchi et al's analysis to build a fixed-effects model that should give a more detailed picture of how regulatory, socioeconomic and environmental attributes of different communities affect changes in emissions over time. Emissions data is available at the middle layer super output area (MSOA) level. These 7201 geographical units are bounded to contain between 2,000 and 6,000 households, and allow us to control for unobserved time-constant heterogeneity by observing the effect of changes in our independent variables on our dependent variable in while holding unobserved differences geographical units constant.
+
+If possible, the analysis in the paper could be extended by building a more detailed picture of emissions from a smart meter dataset that is also available at the MSOA level, but shows emissions per hour, rather than per year. Building on emerging energy use segmentation methodologies [@smartgrid], policy-relevant usage patterns could be developed, and the effects of regulatory, socioeconomic and environmental attributes on shaping such patterns.
+
+# Research Question
+How do local regulatory, socioeconomic and environmental attributes of neighbourhoods affect household emissions in different area types in England and Wales.
+
+# Literature
+
