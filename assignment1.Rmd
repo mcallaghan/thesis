@@ -2,7 +2,8 @@
 title: "Assignment 1"
 author: "Max Callaghan"
 date: "September 11, 2015"
-output: word_document
+output: 
+  pdf_document: default
 nocite: |
   @Maraseni @Hojjati2012304
 bibliography: bibliography.bib
@@ -16,6 +17,9 @@ This paper seeks to analyse neighbourhood household emissions data in England an
 Based on recently available data from the last census (2011), the paper will extend Baiocchi et al's analysis to build a fixed-effects model that should give a more detailed picture of how regulatory, socioeconomic and environmental attributes of different communities affect changes in emissions over time. Emissions data is available at the middle layer super output area (MSOA) level. These 7201 geographical units are bounded to contain between 2,000 and 6,000 households, and allow us to control for unobserved time-constant heterogeneity by observing the effect of changes in our independent variables on our dependent variable in while holding unobserved differences geographical units constant.
 
 If possible, the analysis in the paper could be extended by building a more detailed picture of emissions from a smart meter dataset that is also available at the MSOA level, but shows emissions per hour, rather than per year. Building on emerging energy use segmentation methodologies [@smartgrid], policy-relevant usage patterns could be developed, and the effects of regulatory, socioeconomic and environmental attributes on shaping such patterns.
+
+# Theory
+Energy consumption is a function of both the amount each household chooses to heat the home, as well as how well each home is insulated.
 
 # Research Question
 How do local regulatory, socioeconomic and environmental attributes of neighbourhoods affect household emissions in different area types in England and Wales.
