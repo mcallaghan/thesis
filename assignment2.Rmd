@@ -1,0 +1,102 @@
+---
+title: "Assignment 2"
+author: "Max Callaghan"
+date: "September 23, 2015"
+output: 
+  pdf_document:
+    toc: true
+nocite: |
+  @Maraseni @Hojjati2012304
+bibliography: bibliography.bib
+---
+
+# Outline
+The United Kingdom housing energy fact file, produced for the Department for Energy and Climate Change, shows energy used by households to be the single largest source of energy use in the UK [@ukheff,5]. Household energy usage accounts for 29% of energy use and CO~2~ emissions in the UK, and as such represents a major source of potential reductions in
+greenhouse gas emissions [@ukheff,5]. Moreover, household emissions have been identified as "low hanging fruit" due to the "potential to achieve large reductions" through actions that "require limited up-front government expenditures, generate net savings for the individual, and do not confront other barriers." [@vandenbergh2008].
+
+This paper seeks to analyse neighbourhood household emissions data in England and Wales across time and geography in order to identify drivers of emissions and emissions trends. Differences in local environmental regulation and regulatory powers will be operationalised to analyse their effect on emissions. In addition, the effect of socioeconomic and environmental attributes of neighbourhoods will be measured. The paper will build on research which has developed a "nested typology of human settlements" to understand the "interdependence between attributes [and] their place specific contexts" [@typology].
+
+Based on recently available data from the last census (2011), the paper will extend Baiocchi et al's analysis to build a fixed-effects model that should give a more detailed picture of how regulatory, socioeconomic and environmental attributes of different communities affect changes in emissions over time. Emissions data is available at the middle layer super output area (MSOA) level. These 7201 geographical units are bounded to contain between 2,000 and 6,000 households, and allow us to control for unobserved time-constant heterogeneity by observing the effect of changes in our independent variables on our dependent variable in while holding unobserved differences geographical units constant.
+
+If possible, the analysis in the paper could be extended by building a more detailed picture of emissions from a smart meter dataset that is also available at the MSOA level, but shows emissions per hour, rather than per year. Building on emerging energy use segmentation methodologies [@smartgrid], policy-relevant usage patterns could be developed, and the effects of regulatory, socioeconomic and environmental attributes on shaping such patterns.
+
+# Research Question
+How do local regulatory, socioeconomic and environmental attributes of neighbourhoods affect household emissions in different area types in England and Wales.
+
+# Literature and Theory
+
+Household GHG emissions caused by energy use can be thought of as a function of how much energy households consume (how warm they heat the house in winter etc.), how much households employ energy-saving behaviours, and how much households employ energy-saving technologies (energy-efficient appliances, insulation for homes etc.). Each of these three drivers can be affected by further, measureable, attributes of households.
+
+This paper categorises these attributes into three categories: regulatory, socioeconomic and environmental attributes. It aims to explore the explanatory power of these attributes on household emissions, and to generate cross-sectional models in two points in time as well as a fixed effects model to analyse changes in emission over time. Further, given that these attributes may have different effects on the different behavioural drivers, and hence the effect may be dependent on degree and on local community types, this paper seeks to use a tree regression model [@CART] to assess drivers in different community types. The approach draws on *A Spacial Typology of Human Settlements and their CO2 Emissions in England* [@typology], but uses new data to extend the analysis to incorporate changes in emissions over time. 
+
+## Regulatory Attributes
+
+More research needs to be done about what kind of data can be collected on the regulatory environment in local areas. However, a preliminary hypothesis is that where local authorities enact legislation to promote environmental sustainability, household energy emissions will be lower.
+
+## Socioeconomic Attributes
+
+As both the consumption of more or less electricity and the employment of energy-saving technologies are consumption decisions, income will be a key variable in driving energy use. Preliminary analysis on the effect of income on energy consumption suggests a positive relationship, which may be due to a greater capacity to expend income on energy. However, when the dataset is broken down into local authorities, there is variation in the direction of the effect of income on energy consumption.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE,cache=TRUE}
+
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(car)
+library(plm)
+library(lfe)
+library(ggplot2)
+library(maptools)
+library(rgeos)
+
+library(nlme)
+
+
+dataset <- read.csv("data_ons/dataset.csv")
+
+la_reg <- lmList(
+  energy_consumption~income_est|LA_NAME,
+  data=dataset,
+  na.action = na.omit
+)
+#summary(la_reg)
+#coef(la_reg)
+
+la <- readShapeSpatial("data_ons/geography/LAD/LAD_DEC_2008_GB_BGC.shp")
+la@data$id <- la$LAD08CD
+la.points <- fortify(la,region="id")
+la.df <- join(la.points, la@data,by="id")
+
+la_reg <- lmList(
+  energy_consumption~income_est|LA_CODE,
+  data=dataset,
+  na.action = na.omit
+)
+la_coefs <- coef(la_reg) %>%
+  select(income_est)
+la_coefs$id <- rownames(la_coefs) 
+
+la.df <- right_join(la.df,la_coefs)
+
+mi <- min(la.df$income_est,na.rm=TRUE) 
+m <- max(la.df$income_est,na.rm=TRUE) - mi
+z <- mi * -1
+mid <- z/m
+
+ggplot(la.df) +
+  aes(long,lat,group=group,fill=income_est) +
+  scale_fill_gradientn(colours=c("red","white","blue"),values=c(0,mid,1)) +
+  geom_polygon() +
+  geom_path(color="grey",size=0.1) +
+  coord_equal()
+
+```
+
+
+While a positive relationship suggests greater capacity to spend income on energy, negative effects suggest that with greater income comes a greater capacity to employ energy-saving technologies such as household insulation. There is prima facie evidence of geographical variation on effect direction, supporting the theory that socioeconomic attributes' effects on energy emissions varies between different community types.
+
+## Environmental attributes
+
+Colder regions require more energy-intensive heating, but may also incentivise the installation of more efficient housing insulation. Likewise, areas of greater housing density require less energy-intensive heating, but may disincentivise expenditure on insulation.
+
+# Literature
