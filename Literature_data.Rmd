@@ -1,0 +1,14 @@
+---
+title: "Literature Data"
+author: "Max Callaghan"
+date: "August 21, 2015"
+output: html_document
+---
+
+```{r}
+library(scholar)
+
+household_emissions <- c(88,120,110,131,118,128,121,94,69,48,43,106,24,19,19,20)
+
+```
+

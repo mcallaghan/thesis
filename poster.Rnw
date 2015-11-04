@@ -1,0 +1,165 @@
+\documentclass{beamer}
+\usepackage[orientation=landscape, size=a0, scale=1.4,margin=1in]{beamerposter}
+\usepackage{textpos}
+
+\newenvironment<>{myblock}[1]{%
+ \begin{actionenv}#2%
+ \def\insertblocktitle{\leftskip=10pt\rightskip=10pt\vspace{10pt} #1\vspace{10pt}}%
+ \par%
+ \usebeamertemplate{block begin}\leftskip=10pt\rightskip=10pt\vspace{10pt}}
+ {\par\vspace{10pt}\usebeamertemplate{block end}
+ \end{actionenv}}
+
+\usetheme{Warsaw}
+
+	\title{Research Outline}
+	\subtitle{MPP-RD: Thesis Research Design}
+	\author{Max Callaghan}
+	\date{04 November 2015}
+
+
+\begin{document}
+\begin{frame}[t]
+
+\begin{textblock}{15.5}(0.1,0.1)
+\maketitle
+\end{textblock}
+
+\large
+
+\begin{textblock}{7.8}(0.1,2.1)
+\begin{myblock}{Research Question}
+How do socioeconomic and environmental attributes effect household energy in different communities? How do differences in local regulatory environments affect household emissions and the effects of other attributes on household emissions?
+\end{myblock}
+
+\begin{myblock}{Motivation}
+
+\begin{itemize}
+\item Household energy usage accounts for 29\% of energy use and \(CO_2\) emissions in the UK
+\item New data has been released since the 2011 census that allows the extension of existing research agenda
+\end{itemize}
+
+\end{myblock}
+
+\begin{myblock}{Theory}
+\begin{itemize}
+\item ``The emissions of human settlement types are characterized by unique,
+place-specific combinations of emission drivers" \cite{typology}
+\item Following Baiocchi et al., we assume that a global linear model does not explain household emissions.
+\item Instead, we assume unique place-specific combinations of drivers and build on the typology of settlement types created by Baiocchi.
+\end{itemize}
+
+\end{myblock}
+
+\begin{myblock}{Methodology}
+\begin{itemize}
+\item Following Baiocchi, the paper will use a ``recursive sample splitting method [...] that repeatedly splits the data into increasingly homogeneous groups and allows to fit a linear model on each subsample"
+\item Baiocchi uses cross-sectional data, this paper will use two time points and run a fixed-effects model 
+\item As an extension, a three-way fixed effects model will test for a local authority effect \[ E_{itl} = \beta_0 + \beta_1Y_{itl} + \beta_2X_{itl} + \alpha_{il} + \gamma_{it} \]
+\item Data for local authority environmental performance is rather qualitative.
+\end{itemize}
+\end{myblock}
+
+\begin{myblock}{Work Plan}
+
+\begin{tabular}{ l l }
+  November and December & Finish gathering data, play with it a bit more, and finish reading \\
+  January and February & Run the analysis and begin to write it up \\
+  March and April & Get finished version by (When's the deadline??) \\
+\end{tabular}
+
+\end{myblock}
+
+\textbf{References}
+
+\bibliography{bibliography.bib}
+\bibliographystyle{apalike}
+
+
+\end{textblock}
+
+\begin{textblock}{8}(8.1,2.1)
+
+\begin{figure}
+\caption{Distribution of household energy usage across MSOAs}
+
+<<variation hist, fig.width=14,echo=FALSE,message=FALSE,warning=FALSE,cache=TRUE>>=
+library(knitr)
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggmap)
+library(maptools)
+
+
+dataset <- read.csv("data_ons/dataset.csv")
+
+h <- hist(dataset$energy_consumption,breaks=20,main="",xlab="Household Emissions")
+
+@
+
+\end{figure}
+
+\begin{figure}
+\caption{Map of energy usage}
+
+
+<<variation map, fig.height=20,fig.width=18, echo=FALSE,message=FALSE,warning=FALSE,cache=TRUE>>=
+la <- readShapeSpatial("data_ons/geography/LAD/LAD_DEC_2008_GB_BGC.shp")
+la@data$id <- la$LAD08CD
+la.points <- fortify(la,region="id")
+la.df <- join(la.points, la@data,by="id")
+
+rm(la)
+rm(la.points)
+
+la_en <- dataset %>%
+  group_by(LA_CODE) %>%
+  summarize(
+    energy_consumption = mean(energy_consumption,na.rm=TRUE)
+  ) %>%
+  rename(id = LA_CODE)
+
+la.df <- right_join(la.df,la_en)
+
+msoa <- readShapeSpatial("data_ons/geography/MSOA/MSOA_2001_EW_BGC_V2.shp")
+msoa@data$id <- msoa$MSOA01CD
+msoa.points <- fortify(msoa,region="id")
+msoa.df <- join(msoa.points, msoa@data,by="id")
+
+rm(msoa)
+rm(msoa.points)
+
+msoa_en <- dataset %>%
+  group_by(MSOA_CODE) %>%
+  summarize(
+    energy_consumption = mean(energy_consumption,na.rm=TRUE)
+  ) %>%
+  rename(id = MSOA_CODE)
+
+msoa.df <- right_join(msoa.df,msoa_en)
+
+ggplot() + 
+  geom_polygon(data=msoa.df,aes(long,lat,group=group,fill=energy_consumption)) +
+  geom_polygon(data=la.df,aes(long,lat,group=group),fill=NA,color="black",size=0.2) +
+  scale_fill_distiller(palette = "Greens") +
+  coord_equal() + 
+  theme_nothing(legend=TRUE)
+
+@
+
+\end{figure}
+
+
+
+
+
+\end{textblock}
+
+
+
+\end{frame}
+
+
+\end{document}
