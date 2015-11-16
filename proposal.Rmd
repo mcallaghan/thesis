@@ -1,0 +1,159 @@
+---
+title: "Thesis Proposal"
+author: "Max Callaghan"
+date: "15 November, 2015"
+output: 
+  pdf_document:
+    toc: true
+    fig_caption: true
+    number_sections: true
+  word_document:
+nocite: |
+  @Hojjati2012304
+bibliography: bibliography.bib
+---
+
+\newpage
+
+**Working Title:** Understanding Drivers of Household Emissions in England and Wales Using Panel Data Techniques and Classification and Regression Tree Analysis.
+
+**Thesis Advisor:** Jan Minx
+
+
+# Outline
+
+The United Kingdom housing energy fact file, produced for the Department for Energy and Climate Change, shows energy used by households to be the single largest source of energy use in the UK [@ukheff,5]. Household energy usage accounts for 29% of energy use and CO~2~ emissions in the UK, and as such represents a major source of potential reductions in
+greenhouse gas emissions [@ukheff,5]. Moreover, household emissions have been identified as "low hanging fruit" due to the "potential to achieve large reductions" through actions that "require limited up-front government expenditures, generate net savings for the individual, and do not confront other barriers." [@vandenbergh2008].
+
+This paper seeks to analyse neighbourhood household emissions data in England and Wales across time and geography in order to identify drivers of emissions and emissions trends. Differences in local environmental regulation and regulatory powers will be operationalised to analyse their effect on emissions. In addition, the effect of socioeconomic and environmental attributes of neighbourhoods will be measured. The paper will build on research which has developed a "nested typology of human settlements" to understand the "interdependence between attributes [and] their place specific contexts" [@typology].
+
+Based on recently available data from the last census (2011), the paper will extend Baiocchi et al's analysis to build a fixed-effects model that should give a more detailed picture of how regulatory, socioeconomic and environmental attributes of different communities affect changes in emissions over time. Emissions data are available at the middle layer super output area (MSOA) level. These 7201 geographical units are bounded to contain between 2,000 and 6,000 households.  
+
+## Research Question
+> *How do combinations of local regulatory, socioeconomic and environmental attributes of neighbourhoods affect household emissions in different area types in England and Wales.*
+
+# Literature and Theory
+
+There is an extensive literature on the intersection of household energy consumption, urban form and income. [@lenzen2006comparative; @baur2013urban; @typology; @druckman2008]. This papers makes a contribution to the field through the use of recent data to apply panel data techniques to place specific context dependent models.
+
+Household GHG emissions caused by energy use can be modelled as a function of how much energy households consume (how warm they heat the house in winter etc.), how much households employ energy-saving behaviours, and how much households employ energy-saving technologies (energy-efficient appliances, insulation for homes etc.). Each of these three drivers can be affected by further, measureable, attributes of households.
+
+This paper categorises these attributes into three categories: regulatory, socioeconomic and environmental attributes. It aims to explore the explanatory power of these attributes on household emissions. We assume that the attribute effects are dependent on place-specific context. This paper will therefore use a tree regression model [@CART] to assess drivers in different community types. The approach draws on *A Spacial Typology of Human Settlements and their CO2 Emissions in England* [@typology], but uses new data to extend the analysis to incorporate changes in emissions over time. 
+
+Such a typology draws on the literature on geodemographics [@geodemographics, 14], which seeks to undertake "the analysis of socio-economic and behavioural data about people, to investigate the geographical patterns that structure and are structured by the forms and functions of settlements".
+
+## Regulatory Attributes
+
+
+We test the hypothesis that where local authorities act to promote environmental sustainability, household energy emissions will be lower. We use data compiled by the Department for Energy and Climate Change from local authority Home Energy Conservation Act (HECA) reports that show actions taken by local authorities to promote energy efficiency in residential properties.
+
+## Socioeconomic Attributes
+
+As both the consumption of more or less energy and the employment of energy-saving technologies are consumption decisions, income will be a key variable in driving energy use. We typically assume that energy use rises with income. However, households with higher incomes may have more ability to invest in energy-saving technologies. We would not, therefore, expect the effect of income to be consistent across heterogenous settlement types.
+
+Figure 1, for example, shows prima facie evidence of variation in the effect of income on household emissions across local authorities.
+
+```{r echo=FALSE,message=FALSE,warning=FALSE,cache=TRUE, fig.cap="Coefficient of logged Income on logged Energy Consumption"}
+
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(car)
+library(plm)
+library(lfe)
+library(ggplot2)
+library(maptools)
+library(rgeos)
+
+library(nlme)
+
+
+dataset <- read.csv("data_ons/dataset.csv")
+
+la_reg <- lmList(
+  energy_consumption~income_est|LA_NAME,
+  data=dataset,
+  na.action = na.omit
+)
+#summary(la_reg)
+#coef(la_reg)
+
+la <- readShapeSpatial("data_ons/geography/LAD/LAD_DEC_2008_GB_BGC.shp")
+la@data$id <- la$LAD08CD
+la.points <- fortify(la,region="id")
+la.df <- join(la.points, la@data,by="id")
+
+la_reg <- lmList(
+  log(energy_consumption)~log(income_est)|LA_CODE,
+  data=dataset,
+  na.action = na.omit
+)
+la_coefs <- coef(la_reg) %>%
+  select(`log(income_est)`) %>%
+  rename(income_est = `log(income_est)`)
+la_coefs$id <- rownames(la_coefs) 
+
+la.df <- right_join(la.df,la_coefs)
+
+mi <- min(la.df$income_est,na.rm=TRUE) 
+m <- max(la.df$income_est,na.rm=TRUE) - mi
+z <- mi * -1
+mid <- z/m
+
+ggplot(la.df) +
+  aes(long,lat,group=group,fill=income_est) +
+  scale_fill_gradientn(colours=c("red","white","blue"),values=c(0,mid,1)) +
+  geom_polygon() +
+  geom_path(color="grey",size=0.1) +
+  theme_bw() +
+  theme(
+    axis.title = element_blank(),
+    axis.text = element_blank(),
+    axis.text = element_blank(),
+    axis.line = element_blank(),
+    panel.grid = element_blank()
+  ) +
+  labs(fill="Income coefficient") + 
+  coord_equal()
+
+```
+
+
+## Environmental attributes
+
+We expect that less dense areas will consume more energy [@lenzen2006comparative]. Urban heat islands reduce the amount of heating necessary in more dense areas [@ewing].
+However, we should expect differences between different settlement types with similar population densities.
+
+Colder regions require more energy-intensive heating, but may also incentivise the installation of more efficient housing insulation. Likewise, areas of greater housing density require less energy-intensive heating, but may disincentivise expenditure on insulation.
+
+# Methodology
+Following Baiocchi, the paper will use a "recursive sample splitting method [...] that repeatedly splits the data into increasingly homogeneous groups and allows to fit a linear model on each subsample" [@typology, 4]. We present these subsamples as a typology of human settlements according to drivers of CO~2~ emissions. Where the analysis of Baiocchi et al was based on regression of cross-sectional data, this paper will use fixed-effects regressions using two points in time. Individual fixed-effects regressions will show the impact of settlement attributes on CO~2~ emissions for each settlement type.
+
+A fixed effects model allows us to control for unobserved time-invariant heterogeneity across our observations by modelling the effect of changes in our independent variables on household emissions while holding unobserved differences across geographical units constant. MSOA level data on household emissions is available for a relatively short period. Though this limits the scope of the analysis to some extent, using a fixed-effects model with CART analysis represents a new contribution to the literature on energy use.
+
+# Policy Relevance
+
+The analysis will provide insights on the CO~2~ emissions of different settlement types that could be used to inform planning decisions [@gray2007]. These insights can also help to target energy-efficiency measures [@druckman2008].
+Further, the analysis of the effect of local authority actions can be used to inform further decisions at the local authority level as well as national legislation that governs the expectations of local authorities with regard to household energy
+
+# Data
+All data come from the Office for National Statistics and are available online
+
+# Work plan
+
+
++---------------------------+-----------------------------------------+
+| Time                      | Actions                                 |
++===========================+=========================================+
+| Nobember & December       | - Finish gathering data                 |
+|                           | - Explore data                          |
+|                           | - Finish reading                        |
++---------------------------+-----------------------------------------+
+| January and February      | - Run the analysis                      |
+|                           | - Write up results                      |
++---------------------------+-----------------------------------------+
+| March                     | - Finalise draft                        |
+|                           |                                         |
++---------------------------+-----------------------------------------+
+
+# Literature
